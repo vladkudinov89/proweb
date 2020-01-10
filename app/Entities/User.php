@@ -6,9 +6,25 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $about
+ * @property string $email
+ * @property string $password
+ * @property string $verify_token
+ * @property string $gender
+ * @property string $role
+ * */
 class User extends Authenticatable
 {
     use Notifiable;
+
+    public const STATUS_MALE = 'male';
+    public const STATUS_FEMALE = 'female';
+
+    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
 
     /**
      * The attributes that are mass assignable.
@@ -16,8 +32,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-//        'name',
-        'email', 'password',
+        'name','about', 'email', 'password','gender', 'role'
     ];
 
     /**
@@ -37,4 +52,24 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public static function rolesList(): array
+    {
+        return [
+            self::ROLE_USER => 'user',
+            self::ROLE_ADMIN => 'admin'
+        ];
+    }
+    public static function genderList()
+    {
+        return [
+            self::STATUS_MALE => 'male',
+            self::STATUS_FEMALE => 'female'
+        ];
+    }
+
+    public function getRole():string
+    {
+        return $this->role;
+    }
 }

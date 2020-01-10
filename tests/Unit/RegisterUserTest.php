@@ -16,6 +16,7 @@ class RegisterUserTest extends TestCase
         $user = User::create([
             'email' => 'test@test.ru',
             'password' => bcrypt('secret'),
+            'role' => 'user'
         ]);
 
         self::assertNotEmpty($user);
@@ -25,6 +26,10 @@ class RegisterUserTest extends TestCase
         self::assertNotEmpty($user->password);
 
         self::assertNotEquals(bcrypt('secret'), $user->password);
+
+        self::assertNotEmpty($user->role);
+
+        self::assertEquals('user', $user->getRole());
     }
 
 }

@@ -13,19 +13,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+//    return redirect()->guest(route('profile'));
+//});
 
-Route::get('hello', function (){
-    return "hello, world. OMG, it works ¯\_(ツ)_/¯";
-});
+//Route::get('/', function () {
+//    return redirect()->route('profile');
+//});
 
-Route::get('hello/{name}', function ($name){
-    return "hello, {$name}. OMG, it works ¯\_(ツ)_/¯";
-})->where(['name' => '[A-z]+'])->name('profile');
+//Route::get('/', function () {
+//    return redirect()->route('profile');
+//});
 
-
-Route::get('hello/{name}/city/{city?}', function($name, $city = 'Kiev') {
-    return "hello, {$name} from {$city}. OMG, it works ¯\_(ツ)_/¯";
+Auth::routes();
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/', function () {
+        return redirect()->route('profile');
+    });
+    Route::get('/profile', 'HomeController@index')->name('profile');
 });

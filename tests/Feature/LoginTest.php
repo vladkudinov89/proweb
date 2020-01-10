@@ -5,8 +5,11 @@ namespace Tests\Feature;
 use App\Entities\User;
 use App\Mail\Auth\Admin\SendAdminMail;
 use App\Mail\Auth\User\SendUserMail;
+use App\Notifications\SendAdminNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Tests\TestCase;
 
 
@@ -86,6 +89,7 @@ class LoginTest extends TestCase
     /** @test */
     public function user_success_register()
     {
+        Notification::fake();
         Mail::fake();
 
         $admin = factory(User::class)->create(['role' => 'admin']);
@@ -101,6 +105,11 @@ class LoginTest extends TestCase
 
         Mail::assertSent(SendUserMail::class);
         Mail::assertSent(SendAdminMail::class);
+
+        Notification::assertSentTo(
+            [$admin],
+            SendAdminNotification::class
+        );
 
         $this->assertCount(2, $users = User::all());
 

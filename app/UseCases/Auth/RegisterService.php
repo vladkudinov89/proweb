@@ -6,6 +6,7 @@ use App\Entities\User;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Mail\Auth\Admin\SendAdminMail;
 use App\Mail\Auth\User\SendUserMail;
+use App\Notifications\SendAdminNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
@@ -31,6 +32,8 @@ class RegisterService
         $this->mailer->to($user->email)->send(new SendUserMail($user));
 
         $this->mailer->to($this->admin()->email)->send(new SendAdminMail($this->admin()));
+
+        $this->admin()->notify(new SendAdminNotification($this->admin() ) );
 
         $this->dispatcher->dispatch(new Registered($user));
 

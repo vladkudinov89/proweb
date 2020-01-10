@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Entities\User;
+use App\Mail\Auth\Admin\SendAdminMail;
+use App\Mail\Auth\User\SendUserMail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 
@@ -83,6 +86,11 @@ class LoginTest extends TestCase
     /** @test */
     public function user_success_register()
     {
+        Mail::fake();
+
+        $admin = factory(User::class)->create(['role' => 'admin']);
+
+        $this->withoutExceptionHandling();
         $response = $this->post('register' , [
             'email' => 'john@example.com',
             'password' => 'secret',
@@ -91,6 +99,12 @@ class LoginTest extends TestCase
 
         $response->assertRedirect('/profile');
 
+        Mail::assertSent(SendUserMail::class);
+        Mail::assertSent(SendAdminMail::class);
+
+        $this->assertCount(2, $users = User::all());
+
+        $this->assertAuthenticatedAs($user = User::where('role','user')->first());
     }
 
 

@@ -5,6 +5,7 @@ namespace App\Entities;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -72,4 +73,23 @@ class User extends Authenticatable
     {
         return $this->role;
     }
+
+    public static function register(
+        string $email,
+        string $password
+    ): self
+    {
+        return static::create([
+            'email' => $email,
+            'password' => bcrypt($password),
+            'verify_token' => Str::uuid(),
+            'role' => self::ROLE_USER
+        ]);
+    }
+
+    public static function getAdmin(): User
+    {
+        return User::where('role', self::ROLE_ADMIN)->first();
+    }
+
 }

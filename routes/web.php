@@ -13,19 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::get('/', function () {
-//    return redirect()->guest(route('profile'));
-//});
-
-//Route::get('/', function () {
-//    return redirect()->route('profile');
-//});
-
-//Route::get('/', function () {
-//    return redirect()->route('profile');
-//});
-
 Auth::routes();
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', function () {
         return redirect()->route('profile');

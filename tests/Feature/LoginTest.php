@@ -9,7 +9,6 @@ use App\Notifications\SendAdminNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Notifications\AnonymousNotifiable;
 use Tests\TestCase;
 
 
@@ -114,6 +113,50 @@ class LoginTest extends TestCase
         $this->assertCount(2, $users = User::all());
 
         $this->assertAuthenticatedAs($user = User::where('role','user')->first());
+    }
+
+    /** @test */
+    public function user_can_edit_own_profile()
+    {
+        $profile = factory(User::class)->create();
+
+        $data = [
+            'name' => 'change name',
+            'about' => 'test description',
+            'gender' => 'male'
+        ];
+
+        $this
+            ->actingAs($profile)
+            ->put("profile/{$profile}" , $data);
+
+        $this->assertAuthenticatedAs($profile);
+
+        $this->assertDatabaseHas('users' , $data);
+    }
+
+    /** @test */
+    public function only_admin_can_delete_user()
+    {
+        $admin = factory(User::class)->create(['role' => 'admin']);
+        $user = factory(User::class)->create(['role' => 'user']);
+
+        $this
+            ->actingAs($admin)
+            ->delete('profile/' . $user->id);
+
+        $this->assertDatabaseMissing('users' ,$user->toArray());
+    }
+
+    /** @test */
+    public function user_cannot_delete_user()
+    {
+        $user = factory(User::class)->create(['role' => 'user']);
+
+        $this
+            ->actingAs($user)
+            ->delete('profile/' . $user->id)
+            ->assertStatus(403);
     }
 
 

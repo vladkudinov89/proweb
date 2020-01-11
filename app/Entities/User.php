@@ -92,4 +92,9 @@ class User extends Authenticatable
         return User::where('role', self::ROLE_ADMIN)->first();
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
 }

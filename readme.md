@@ -11,3 +11,5 @@ Execute commands in docker-compose:
 After operation with docker-compose open application in `localhost` in your browser.
 
 Email and notification are send to log file. See `storage/logs`.
+
+Stop application execute `docker-compose dowm` 

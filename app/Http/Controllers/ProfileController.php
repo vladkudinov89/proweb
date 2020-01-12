@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\User\DeleteUserAction;
+use App\Actions\User\DeleteUserRequest;
 use App\Actions\User\GetAllUsersAction;
 use App\Entities\User;
 use App\Http\Requests\UpdateUserRequest;
@@ -14,14 +16,22 @@ class ProfileController extends Controller
      * @var GetAllUsersAction
      */
     private $getAllUsersAction;
+    /**
+     * @var DeleteUserAction
+     */
+    private $deleteUserAction;
 
     /**
      * ProfileController constructor.
      * @param GetAllUsersAction $getAllUsersAction
      */
-    public function __construct(GetAllUsersAction $getAllUsersAction)
+    public function __construct(
+        GetAllUsersAction $getAllUsersAction,
+        DeleteUserAction $deleteUserAction
+    )
     {
         $this->getAllUsersAction = $getAllUsersAction;
+        $this->deleteUserAction = $deleteUserAction;
     }
 
     public function index()
@@ -33,7 +43,7 @@ class ProfileController extends Controller
         }
 
         return view('profile', [
-            'current_user' =>  $current_user,
+            'current_user' => $current_user,
             'users' => $this->getAllUsersAction->execute($current_user)->getCollection()
         ]);
     }
@@ -112,7 +122,7 @@ class ProfileController extends Controller
         try {
             $this->authorize('update', $profile);
 
-            $profile::destroy($profile->id);
+            $this->deleteUserAction->execute(new DeleteUserRequest($profile->id));
 
             return redirect()->route('profile.index')
                 ->with('status', 'Delete Success!');

@@ -2,28 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\User\DeleteUserAction;
+use App\Actions\User\DeleteUserRequest;
+use App\Actions\User\GetAllUsersAction;
 use App\Entities\User;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class ProfileController extends Controller
 {
+    /**
+     * @var GetAllUsersAction
+     */
+    private $getAllUsersAction;
+    /**
+     * @var DeleteUserAction
+     */
+    private $deleteUserAction;
+
+    /**
+     * ProfileController constructor.
+     * @param GetAllUsersAction $getAllUsersAction
+     */
+    public function __construct(
+        GetAllUsersAction $getAllUsersAction,
+        DeleteUserAction $deleteUserAction
+    )
+    {
+        $this->getAllUsersAction = $getAllUsersAction;
+        $this->deleteUserAction = $deleteUserAction;
+    }
+
     public function index()
     {
-        $current_user = Auth::user();
+        $current_user = \Auth::user();
 
         if (empty($current_user->name) || empty($current_user->about)) {
             return redirect()->route('profile.edit', compact('current_user'));
         }
 
-        $users = User::all()
-            ->whereNotIn('email', $current_user->email)
-            ->whereNotIn('name', '');
-
         return view('profile', [
             'current_user' => $current_user,
-            'users' => $users
+            'users' => $this->getAllUsersAction->execute($current_user)->getCollection()
         ]);
     }
 
@@ -81,14 +102,8 @@ class ProfileController extends Controller
      * @param \App\Entities\User $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $this->validate($request, [
-            'name' => 'required|string|min:2|max:255',
-            'about' => 'required|string|min:10|max:255',
-            'gender' => 'required|string',
-        ]);
-
         $user = Auth::user();
 
         $user->update($request->only('name', 'about', 'gender'));
@@ -107,7 +122,7 @@ class ProfileController extends Controller
         try {
             $this->authorize('update', $profile);
 
-            $profile::destroy($profile->id);
+            $this->deleteUserAction->execute(new DeleteUserRequest($profile->id));
 
             return redirect()->route('profile.index')
                 ->with('status', 'Delete Success!');

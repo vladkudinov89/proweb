@@ -10,7 +10,6 @@
             @if($errors->has('name')) error @endif"
             name="name"
             placeholder="User Name"
-            required
             value="@if(old('name')){{old('name')}}@else{{ $user->name ?? ""  }}@endif"
         >
     </div>
@@ -30,7 +29,7 @@
                 class="textarea bg-transparent border border-muted-light rounded p-2 text-xs w-50
                 @if($errors->has('about')) error @endif"
                 placeholder="Task Description"
-                required>@if(old('about')){{old('about')}}@else{{ $user->about ?? ""  }}@endif</textarea>
+            >@if(old('about')){{old('about')}}@else{{ $user->about ?? ""  }}@endif</textarea>
     </div>
     @if($errors->has('about'))
         <div class="alert alert-danger w-50">{{$errors->first('about')}}</div>

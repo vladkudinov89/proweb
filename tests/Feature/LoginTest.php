@@ -159,5 +159,22 @@ class LoginTest extends TestCase
             ->assertStatus(403);
     }
 
+    /** @test */
+    public function get_error_validation_when_edit_user_form()
+    {
+        $profile = factory(User::class)->make(['name' => '' , 'about' => 'test']);
+
+        $data = [
+            'name' => 'V',
+            'about' => "test"
+        ];
+
+        $response = $this
+            ->actingAs($profile)
+            ->patch("profile/$profile" , $data)
+            ->assertSessionHasErrors('name')
+            ->assertSessionHasErrors('about');
+    }
+
 
 }

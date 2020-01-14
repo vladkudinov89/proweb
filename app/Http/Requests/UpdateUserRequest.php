@@ -29,4 +29,14 @@ class UpdateUserRequest extends FormRequest
             'gender' => 'required|string',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Вы не указали Имя',
+            'about.required' => 'Вы не указали данные "О Себе"',
+            'name.min' => 'Минимум 2 символа в имени',
+            'about.min' => 'Минимум 10 символов в описании "О Себе"',
+        ];
+    }
 }
